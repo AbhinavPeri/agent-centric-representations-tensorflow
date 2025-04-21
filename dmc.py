@@ -207,42 +207,52 @@ class ExtendedTimeStepWrapper(dm_env.Environment):
 
 def make(name, frame_stack, action_repeat, seed, distracting_mode: str = None, multitask_mode: str = None):
     pixel_hw = 84
-    if 'offline' in name:
-        name = '_'.join(name.split('_')[1:3])
-    domain, task = name.split('_', 1)
-    # overwrite cup to ball_in_cup
-    domain = dict(cup='ball_in_cup').get(domain, domain)
-
-    # make sure reward is not visualized
-    if multitask_mode is None:
-        if (domain, task) in suite.ALL_TASKS:
-            env = suite.load(domain,
-                             task,
-                             task_kwargs={'random': seed},
-                             visualize_reward=False)
-            pixels_key = 'pixels'
-        else:
-            name = f'{domain}_{task}_vision'
-            env = manipulation.load(name, seed=seed)
-            pixels_key = 'front_close'
-    else:
-        assert multitask_mode in multitask_modes, 'Unrecognised length setting'
-        idx = multitask_mode.split('_', 1)[1]
-
-        if domain == 'walker' and task == 'walk':
-            xml = f'len_{idx}'
-        elif domain == 'cheetah' and task == 'run':
-            xml = f'torso_length_{idx}'
-        else:
-            raise Exception
-
-        env = fb_mtenv_dmc.load(
-            domain_name=domain,
-            task_name=task,
-            task_kwargs={'xml_file_id': xml, 'random': seed},
-            visualize_reward=False,
-        )
+    if "humanoid_CMU" in name:
+        env = suite.load(
+            'humanoid_CMU',
+            'run',
+            task_kwargs={'random': seed},
+            visualize_reward=False,)
         pixels_key = 'pixels'
+        domain = 'humanoid_CMU'
+        task = 'run'
+    else:
+        if 'offline' in name:
+            name = '_'.join(name.split('_')[1:3])
+        domain, task = name.split('_', 1)
+        # overwrite cup to ball_in_cup
+        domain = dict(cup='ball_in_cup').get(domain, domain)
+
+        # make sure reward is not visualized
+        if multitask_mode is None:
+            if (domain, task) in suite.ALL_TASKS:
+                env = suite.load(domain,
+                                task,
+                                task_kwargs={'random': seed},
+                                visualize_reward=False)
+                pixels_key = 'pixels'
+            else:
+                name = f'{domain}_{task}_vision'
+                env = manipulation.load(name, seed=seed)
+                pixels_key = 'front_close'
+        else:
+            assert multitask_mode in multitask_modes, 'Unrecognised length setting'
+            idx = multitask_mode.split('_', 1)[1]
+
+            if domain == 'walker' and task == 'walk':
+                xml = f'len_{idx}'
+            elif domain == 'cheetah' and task == 'run':
+                xml = f'torso_length_{idx}'
+            else:
+                raise Exception
+
+            env = fb_mtenv_dmc.load(
+                domain_name=domain,
+                task_name=task,
+                task_kwargs={'xml_file_id': xml, 'random': seed},
+                visualize_reward=False,
+            )
+            pixels_key = 'pixels'
 
     # add wrappers
     env = ActionDTypeWrapper(env, np.float32)

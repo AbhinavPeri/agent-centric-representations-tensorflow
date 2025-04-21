@@ -43,7 +43,7 @@ class EfficientReplayBuffer(AbstractReplayBuffer):
         self.ims_channels = self.obs_shape[0] // self.frame_stack
         self.act_shape = time_step.action.shape
 
-        self.obs = np.zeros([self.buffer_size, self.ims_channels, *self.obs_shape[1:]], dtype=np.uint8)
+        self.obs = np.zeros([self.buffer_size, self.ims_channels, *self.obs_shape[1:]], dtype=np.float32)
         self.act = np.zeros([self.buffer_size, *self.act_shape], dtype=np.float32)
         self.latent = np.zeros([self.buffer_size, self.latent_shape], dtype=np.float32)
         self.imp_act = np.ones([self.buffer_size, self.imp_act_shape], dtype=np.float32)
@@ -51,7 +51,7 @@ class EfficientReplayBuffer(AbstractReplayBuffer):
         self.dis = np.zeros([self.buffer_size], dtype=np.float32)
         self.valid = np.zeros([self.buffer_size], dtype=np.bool_)
         self.k_step = np.zeros([self.buffer_size], dtype=np.float32)
-        self.obs_k = np.zeros([self.buffer_size, self.ims_channels, *self.obs_shape[1:]], dtype=np.uint8)
+        self.obs_k = np.zeros([self.buffer_size, self.ims_channels, *self.obs_shape[1:]], dtype=np.float32)
 
     def add_data_point(self, time_step):
         first = time_step.first()

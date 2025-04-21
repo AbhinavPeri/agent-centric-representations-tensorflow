@@ -193,6 +193,10 @@ def add_offline_data_to_buffer(offline_data: dict, replay_buffer: EfficientRepla
         time_step = get_timestep_from_idx(offline_data, idx)
         if not time_step.first():
             now += 1
+            try:
+                stacked_frames
+            except NameError:
+                stacked_frames = deque(maxlen=framestack)
             stacked_frames.append(time_step.observation)
             time_step_stack = time_step._replace(observation=np.concatenate(stacked_frames, axis=0))
             rindex = min(interval-1, now+max_k)

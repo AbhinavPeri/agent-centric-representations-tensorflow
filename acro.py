@@ -76,21 +76,26 @@ class Encoder(nn.Module):
     def __init__(self, obs_shape, feature_dim):
         super().__init__()
         assert len(obs_shape) == 3
-        self.repr_dim = 32 * 35 * 35
+        # self.repr_dim = 32 * 35 * 35
+        self.repr_dim = 64
 
-        self.convnet = nn.Sequential(nn.Conv2d(obs_shape[0], 32, 3, stride=2),
-                                        nn.ReLU(), nn.Conv2d(32, 32, 3, stride=1),
-                                        nn.ReLU(), nn.Conv2d(32, 32, 3, stride=1),
-                                        nn.ReLU(), nn.Conv2d(32, 32, 3, stride=1),
-                                        nn.ReLU())
-        
-        self.linear = nn.Sequential(nn.Linear(self.repr_dim, feature_dim),
+        # self.convnet = nn.Sequential(nn.Conv2d(obs_shape[0], 32, 3, stride=2),
+        #                                 nn.ReLU(), nn.Conv2d(32, 32, 3, stride=1),
+        #                                 nn.ReLU(), nn.Conv2d(32, 32, 3, stride=1),
+        #                                 nn.ReLU(), nn.Conv2d(32, 32, 3, stride=1),
+        #                                 nn.ReLU())
+        self.linear = nn.Sequential(nn.Linear(2868, self.repr_dim),
+                                    nn.ReLU(),
+                                    nn.Linear(self.repr_dim, self.repr_dim),
+                                    nn.ReLU(),
+                                    nn.Linear(self.repr_dim, feature_dim),
                                     nn.LayerNorm(feature_dim), nn.Tanh())
         
         self.apply(utils.weight_init)
     def forward(self, obs):
-        obs = obs / 255.0 - 0.5
-        h = self.convnet(obs)
+        # obs = obs / 255.0 - 0.5
+        # h = self.convnet(obs)
+        h = obs
         h = h.view(h.shape[0], -1)
         h = self.linear(h)
         return h
@@ -240,7 +245,8 @@ class ACROAgent:
 
     def act(self, obs, step, eval_mode):
         obs = torch.as_tensor(obs, device=self.device)
-        obs = self.encoder(obs.unsqueeze(0))
+        breakpoint()
+        obs = self.encoder(obs)
         stddev = utils.schedule(self.stddev_schedule, step)
         dist = self.actor(obs, stddev)
         if eval_mode:
@@ -371,8 +377,8 @@ class ACROAgent:
             batch, self.device)
 
         # augment
-        obs = self.aug(obs.float())
-        obs_k = self.aug(obs_k.float())
+        obs = obs.float() # self.aug(obs.float())
+        obs_k = obs_k.float() # self.aug(obs_k.float())
         metrics.update(self.update_encoder(obs, obs_k, k_step, step, action.detach()))
 
         return metrics

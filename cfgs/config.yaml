@@ -7,7 +7,7 @@ defaults:
 dist_level: hard # only used for cleaner log names
 
 # task settings
-frame_stack: 3
+frame_stack: 1
 action_repeat: 2
 discount: 0.99
 distracting_mode: null
@@ -21,7 +21,7 @@ eval_on_distracting: False
 eval_on_multitask: False
 eval_save_vid_every_step: 100000
 # snapshot
-save_snapshot: False
+save_snapshot: True
 # replay buffer
 replay_buffer_size: 1_000_000
 replay_buffer_num_workers: 1

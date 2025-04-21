@@ -219,39 +219,39 @@ class Workspace:
                 self._pretrain_step += 1
 
             
-        while train_until_step(self.global_step):
-            if show_train_stats_every_step(self.global_step):
-                # wait until all the metrics schema is populated
-                if metrics is not None:
-                    # log stats
-                    elapsed_time, total_time = self.timer.reset()
-                    with self.logger.log_and_dump_ctx(self.global_frame,
-                                                      ty='train') as log:
-                        log('fps', step / elapsed_time)
-                        log('total_time', total_time)
-                        log('buffer_size', len(self.replay_buffer))
-                        log('step', self.global_step)
-                    step = 0
-                # try to save snapshot
-                if self.cfg.save_snapshot:
-                    self.save_snapshot()
-            step += 1
-            # try to evaluate
-            if eval_every_step(self.global_step):
-                self.logger.log('eval_total_time', self.timer.total_time(),
-                                self.global_frame)
-                if self.eval_on_distracting:
-                    self.eval_distracting(eval_save_vid_every_step(self.global_step))
-                if self.eval_on_multitask:
-                    self.eval_multitask(eval_save_vid_every_step(self.global_step))
-                self.eval()
+        # while train_until_step(self.global_step):
+        #     if show_train_stats_every_step(self.global_step):
+        #         # wait until all the metrics schema is populated
+        #         if metrics is not None:
+        #             # log stats
+        #             elapsed_time, total_time = self.timer.reset()
+        #             with self.logger.log_and_dump_ctx(self.global_frame,
+        #                                               ty='train') as log:
+        #                 log('fps', step / elapsed_time)
+        #                 log('total_time', total_time)
+        #                 log('buffer_size', len(self.replay_buffer))
+        #                 log('step', self.global_step)
+        #             step = 0
+        #         # try to save snapshot
+        #         if self.cfg.save_snapshot:
+        #             self.save_snapshot()
+        #     step += 1
+        #     # try to evaluate
+        #     if eval_every_step(self.global_step):
+        #         self.logger.log('eval_total_time', self.timer.total_time(),
+        #                         self.global_frame)
+        #         if self.eval_on_distracting:
+        #             self.eval_distracting(eval_save_vid_every_step(self.global_step))
+        #         if self.eval_on_multitask:
+        #             self.eval_multitask(eval_save_vid_every_step(self.global_step))
+        #         self.eval()
 
-            # try to update the agent
-            metrics = self.agent.update(self.replay_buffer, self.global_step)
-            if show_train_stats_every_step(self.global_step):
-                self.logger.log_metrics(metrics, self.global_frame, ty='train')
+        #     # try to update the agent
+        #     metrics = self.agent.update(self.replay_buffer, self.global_step)
+        #     if show_train_stats_every_step(self.global_step):
+        #         self.logger.log_metrics(metrics, self.global_frame, ty='train')
 
-            self._global_step += 1
+        #     self._global_step += 1
 
     def save_snapshot(self):
         snapshot = self.work_dir / 'snapshot.pt'
